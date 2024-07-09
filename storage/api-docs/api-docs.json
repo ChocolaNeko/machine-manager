@@ -1,0 +1,644 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "L5 OpenApi",
+        "description": "L5 Swagger OpenApi description",
+        "contact": {
+            "email": "developer@example.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {},
+        "/v1/getuserlist": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "取得會員列表",
+                "description": "取得會員列表",
+                "operationId": "getuserlist",
+                "parameters": [
+                    {
+                        "name": "is_enable",
+                        "in": "path",
+                        "description": "帳號是否啟用",
+                        "required": false,
+                        "schema": {
+                            "type": "boolen"
+                        },
+                        "example": "true"
+                    },
+                    {
+                        "name": "create_time",
+                        "in": "path",
+                        "description": "帳號創立時間",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "123456789"
+                    },
+                    {
+                        "name": "create_time_operator",
+                        "in": "path",
+                        "description": "帳號創立時間 運算子",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ">"
+                    },
+                    {
+                        "name": "amount",
+                        "in": "path",
+                        "description": "餘額",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "250"
+                    },
+                    {
+                        "name": "amount_operator",
+                        "in": "path",
+                        "description": "餘額 運算子",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "<"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "會員 ID",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "2545566"
+                    },
+                    {
+                        "name": "user_name",
+                        "in": "path",
+                        "description": "會員名稱",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "tester"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "message": "success"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error_code": {
+                                            "type": "integer",
+                                            "example": 401001
+                                        },
+                                        "error_msg": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 401001,
+                                        "error_msg": "Unauthenticated."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
+        "/v1/newadmin": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "新增管理員",
+                "description": "新管理員註冊",
+                "operationId": "newadmin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "admin_name",
+                                    "password",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "admin_name": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "579f2cfcfa83"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "eva.lin321@tems.edu"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "message": "success"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "error_code": {
+                                            "type": "integer"
+                                        },
+                                        "error_msg": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 400001,
+                                        "error_msg": "The JSON payload is not in the correct format."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/admin/login": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "管理員登入",
+                "description": "管理員登入",
+                "operationId": "admin login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "eva.lin321@tems.edu"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "579f2cfcfa83"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登入成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "e3a45282d0621f0a6fc83eeb061247f0e6d94f0d3f6c29f98f"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "data": {
+                                            "token": "e3a45282d0621f0a6fc83eeb061247f0e6d94f0d3f6c29f98f"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/getuserinfo": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "取得會員資料",
+                "description": "取得會員資料",
+                "operationId": "getuserinfo",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_name"
+                                ],
+                                "properties": {
+                                    "user_name": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "579f2cfcfa83"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "message": "success"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error_code": {
+                                            "type": "integer",
+                                            "example": 401001
+                                        },
+                                        "error_msg": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 401001,
+                                        "error_msg": "Unauthenticated."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
+        "/v1/newuser": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "新增會員",
+                "description": "新會員註冊",
+                "operationId": "newuser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_name",
+                                    "password",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "user_name": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "579f2cfcfa83"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "eva.lin321@tems.edu"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "message": "success"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "error_code": {
+                                            "type": "integer"
+                                        },
+                                        "error_msg": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 400001,
+                                        "error_msg": "The JSON payload is not in the correct format."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/login": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "會員登入",
+                "description": "會員登入",
+                "operationId": "user login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "eva.lin321@tems.edu"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "579f2cfcfa83"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登入成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "e3a45282d0621f0a6fc83eeb061247f0e6d94f0d3f6c29f98f"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "data": {
+                                            "token": "e3a45282d0621f0a6fc83eeb061247f0e6d94f0d3f6c29f98f"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "200": {
+                "description": "成功",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 200,
+                            "message": "OK"
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "客戶端錯誤",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 400,
+                            "message": "客戶端錯誤"
+                        }
+                    }
+                }
+            },
+            "401": {
+                "description": "身份驗證失敗",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 401,
+                            "message": "Unauthorized"
+                        }
+                    }
+                }
+            },
+            "404": {
+                "description": "找不到請求的資源",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 404,
+                            "message": "Not Found"
+                        }
+                    }
+                }
+            },
+            "405": {
+                "description": "不支援此方法",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 405,
+                            "message": "Method Not Allowed"
+                        }
+                    }
+                }
+            },
+            "500": {
+                "description": "伺服器發生錯誤",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": 500,
+                            "message": "伺服器發生錯誤"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "Authorization": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}
