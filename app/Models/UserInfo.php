@@ -11,6 +11,6 @@ class UserInfo extends Model
     use HasApiTokens, HasFactory;
     protected $table = "user_info";
     protected $primaryKey = "user_id";
-    protected $fillable = ["user_name", "user_hash", "email", "status", "create_time", "money"];
+    protected $fillable = ["user_name", "user_hash", "email", "status", "create_time", "balance"];
     public $timestamps = false;
 }

@@ -25,17 +25,17 @@
                 "parameters": [
                     {
                         "name": "is_enable",
-                        "in": "path",
-                        "description": "帳號是否啟用",
+                        "in": "query",
+                        "description": "帳號是否啟用(1 or 0)",
                         "required": false,
                         "schema": {
-                            "type": "boolen"
+                            "type": "int"
                         },
-                        "example": "true"
+                        "example": "1"
                     },
                     {
                         "name": "create_time",
-                        "in": "path",
+                        "in": "query",
                         "description": "帳號創立時間",
                         "required": false,
                         "schema": {
@@ -45,7 +45,7 @@
                     },
                     {
                         "name": "create_time_operator",
-                        "in": "path",
+                        "in": "query",
                         "description": "帳號創立時間 運算子",
                         "required": false,
                         "schema": {
@@ -55,7 +55,7 @@
                     },
                     {
                         "name": "amount",
-                        "in": "path",
+                        "in": "query",
                         "description": "餘額",
                         "required": false,
                         "schema": {
@@ -65,7 +65,7 @@
                     },
                     {
                         "name": "amount_operator",
-                        "in": "path",
+                        "in": "query",
                         "description": "餘額 運算子",
                         "required": false,
                         "schema": {
@@ -75,7 +75,7 @@
                     },
                     {
                         "name": "user_id",
-                        "in": "path",
+                        "in": "query",
                         "description": "會員 ID",
                         "required": false,
                         "schema": {
@@ -85,13 +85,53 @@
                     },
                     {
                         "name": "user_name",
-                        "in": "path",
+                        "in": "query",
                         "description": "會員名稱",
                         "required": false,
                         "schema": {
                             "type": "string"
                         },
                         "example": "tester"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "第幾頁",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "每頁幾筆",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "50"
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "排序欄位",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "user_id"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "排序方式",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "asc"
                     }
                 ],
                 "responses": {

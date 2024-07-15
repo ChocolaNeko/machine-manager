@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('email', length: 500)->nullable($value = false)->unique();
             $table->integer('status')->nullable($value = false);
             $table->integer('create_time')->nullable($value = false);
-            $table->integer('money')->nullable($value = false)->default(0);
+            $table->integer('balance')->nullable($value = false)->default(0);
         });
     }
 

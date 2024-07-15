@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminInfo;
+use App\Models\UserInfo;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,19 +26,19 @@ class Admin extends Controller
      *      },
      *      @OA\Parameter(
      *          name="is_enable",
-     *          description="帳號是否啟用",
+     *          description="帳號是否啟用(1 or 0)",
      *          required=false,
-     *          in="path",
-     *          example="true",
+     *          in="query",
+     *          example="1",
      *          @OA\Schema(
-     *              type="boolen"
+     *              type="int"
      *          )
      *      ),
      *      @OA\Parameter(
      *          name="create_time",
      *          description="帳號創立時間",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example="123456789",
      *          @OA\Schema(
      *              type="int"
@@ -47,7 +48,7 @@ class Admin extends Controller
      *          name="create_time_operator",
      *          description="帳號創立時間 運算子",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example=">",
      *          @OA\Schema(
      *              type="string"
@@ -57,7 +58,7 @@ class Admin extends Controller
      *          name="amount",
      *          description="餘額",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example="250",
      *          @OA\Schema(
      *              type="int"
@@ -67,7 +68,7 @@ class Admin extends Controller
      *          name="amount_operator",
      *          description="餘額 運算子",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example="<",
      *          @OA\Schema(
      *              type="string"
@@ -77,7 +78,7 @@ class Admin extends Controller
      *          name="user_id",
      *          description="會員 ID",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example="2545566",
      *          @OA\Schema(
      *              type="int"
@@ -87,8 +88,48 @@ class Admin extends Controller
      *          name="user_name",
      *          description="會員名稱",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          example="tester",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="page",
+     *          description="第幾頁",
+     *          required=false,
+     *          in="query",
+     *          example="1",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="limit",
+     *          description="每頁幾筆",
+     *          required=false,
+     *          in="query",
+     *          example="50",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="sort",
+     *          description="排序欄位",
+     *          required=false,
+     *          in="query",
+     *          example="user_id",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="order",
+     *          description="排序方式",
+     *          required=false,
+     *          in="query",
+     *          example="asc",
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -143,23 +184,145 @@ class Admin extends Controller
         // 有帶 token 後才做後續驗證 管理員/會員功能
         // 1. 用 token 取得權限資料，檢查是否為會員
         // 2. 是會員 => 可查看會員資料，非會員 => 阻擋並回傳錯誤訊息
-        // test token = Bearer 11|4g4S7j9fwMexoHJ5FHcKvjbI749HYsLuOannUV5z7f6099bf
+        // test token = Bearer 14|28M3d8C80LxtfKK9IVSMnVIOslzZEM7qPRgorxrQ2519a6ce
+        // 3. 驗證正確：檢查是否有帶參數，若沒有就 SELECT ALL
+        // 4. 驗證正確：有帶參數，先檢查參數是否正確
+        // 5. 確認參數都正確，再組語法
 
-        // 取得登入帳號資料
-        $user = $request->user();
-        var_dump($user);die();
-        // output user list
-        // 取得會員列表
-        // 查詢條件
-        // enable: true/false, 會員狀態(true:啟用/false:停用)
-        // create_time: 帳號創立時間
-        // create_time_ex: 帳號創立時間 運算子 (>,<,=,>=,<=)
-        // money: 餘額
-        // money_ex: 餘額 運算子 (>,<,=,>=,<=)
-        // user_name: 會員名稱
-        // user_id: 會員 ID
+        $res = [];
+        if ($request->query()) {
+            // 有帶參數 => 檢查參數
+            $validRule = [
+                'is_enable' => 'nullable|integer|in:0,1',
+                'create_time' => 'nullable|integer',
+                'create_time_operator' => 'nullable|string|in:>,<,=,>=,<=',
+                'amount' => 'nullable|integer',
+                'amount_operator' => 'nullable|string|in:>,<,=,>=,<=',
+                'user_id' => 'nullable|integer',
+                'user_name' => 'nullable|string|max:255',
+                'page' => 'nullable|integer|min:1',
+                'limit' => 'nullable|integer|min:1',
+                'sort' => 'nullable|string|in:user_id,user_name,email,create_time,amount',
+                'order' => 'nullable|string|in:ASC,DESC,asc,desc'
+            ];
 
-        // {"return":true,"data":{"user_list":[{"user_id":1,"user_name":"test","email":"test@gg.tt","status":1,"create_time":21348579876,"money":100}],"user_count":75}}
+            $errMsg = [
+                'string' => '必須為字串',
+                'integer' => '必須為整數',
+                'max' => '超出最大值(:max)',
+                'min' => '低於最小值(:min)',
+                'in' => '欄位非指定值(:values)',
+            ];
+
+            $validator = Validator::make($request->all(), $validRule, $errMsg);
+            // 資料驗證有誤，回傳 error msg
+            $resultMsg = "";
+            if ($validator->fails()) {
+                foreach ($validator->errors()->messages() as $k => $v) {
+                    $resultMsg = $resultMsg . $k . " ";
+                    foreach ($v as $k2 => $v2) {
+                        $resultMsg = $resultMsg . $v2 . ", ";
+                    }
+                }
+                $resultMsg = rtrim($resultMsg, ", ");
+
+                return response()->json([
+                    'result' => false,
+                    'error_code' => 400001, // API 驗證錯誤
+                    'error_msg' => $resultMsg,
+                ], 400);
+            }
+            echo "PASS";die();
+
+            $isEnable = $request->query('is_enable');
+            $createTime = $request->query('create_time');
+            $createTimeOperator = $request->query('create_time_operator');
+            $amount = $request->query('amount');
+            $amountOperator = $request->query('amount_operator');
+            $userId = $request->query('user_id');
+            $userName = $request->query('user_name');
+            $page = $request->query('page');
+            $limit = $request->query('limit');
+            $sort = $request->query('sort');
+            $order = $request->query('order');
+
+            $query = UserInfo::select('user_id', 'user_name', 'email', 'status', 'create_time', 'balance');
+
+            if (!is_null($isEnable)) {
+                $query->where('status', '=', $isEnable);
+            }
+            if ($createTime && $createTimeOperator) {
+                $query->where('create_time', $createTimeOperator, $createTime);
+            }
+            if ($amount && $amountOperator) {
+                $query->where('balance', $amountOperator, $amount);
+            }
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+            if ($userName) {
+                $query->where('user_name', 'like', '%' . $userName . '%');
+            }
+            if ($sort && $order) {
+                $query->orderBy($sort, $order);
+            } else {
+                $query->orderBy('user_id', 'ASC');
+            }
+            if ($page && $limit) {
+                $query->paginate($limit, ['*'], 'page', $page);
+            } else {
+                $query->paginate(50, ['*'], 'page', 1);
+            }
+            $data = $query->get();
+
+            // 整理資料為 json
+            $userList = [];
+            foreach ($data as $d) {
+                $user = [
+                    'user_id' => $d->user_id,
+                    'user_name' => $d->user_name,
+                    'email' => $d->email,
+                    'status' => $d->status,
+                    'create_time' => $d->create_time,
+                    'amount' => $d->balance
+                ];
+                $userList[] = $user;
+            }
+
+            $res['result'] = true;
+            $res['data'] = [
+                'user_list' => $userList,
+                'total_user_count' => $query->count(),
+                'page' => is_null($page) ? 1:$page
+            ];
+        } else {
+            // 沒帶參數 => 預設查詢第一頁，每頁50筆資料，以 user_id ASC 排序
+            $data = UserInfo::select('user_id', 'user_name', 'email', 'status', 'create_time', 'balance')
+                ->orderBy('user_id', 'asc')
+                ->paginate(50, ['*'], 'page', 1);
+
+            $userList = [];
+            foreach ($data as $d) {
+                $user = [
+                    'user_id' => $d->user_id,
+                    'user_name' => $d->user_name,
+                    'email' => $d->email,
+                    'status' => $d->status,
+                    'create_time' => $d->create_time,
+                    'balance' => $d->balance
+                ];
+                $userList[] = $user;
+            }
+
+            $res['result'] = true;
+            $res['data'] = [
+                'user_list' => $userList,
+                'total_user_count' => $data->total(),
+                'page' => 1
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**
