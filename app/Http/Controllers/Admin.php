@@ -184,7 +184,7 @@ class Admin extends Controller
         // 有帶 token 後才做後續驗證 管理員/會員功能
         // 1. 用 token 取得權限資料，檢查是否為會員
         // 2. 是會員 => 可查看會員資料，非會員 => 阻擋並回傳錯誤訊息
-        // test token = Bearer 14|28M3d8C80LxtfKK9IVSMnVIOslzZEM7qPRgorxrQ2519a6ce
+        // test token = Bearer 1|bcBoDsVncYMX97zW86rux1cpmc1Q9T3tym9LmiG5a02756b6
         // 3. 驗證正確：檢查是否有帶參數，若沒有就 SELECT ALL
         // 4. 驗證正確：有帶參數，先檢查參數是否正確
         // 5. 確認參數都正確，再組語法
@@ -232,7 +232,6 @@ class Admin extends Controller
                     'error_msg' => $resultMsg,
                 ], 400);
             }
-            echo "PASS";die();
 
             $isEnable = $request->query('is_enable');
             $createTime = $request->query('create_time');
@@ -397,11 +396,6 @@ class Admin extends Controller
      */
     public function NewAdmin(Request $request)
     {
-        // 1. get admin input data
-        // 2. vaildation input
-        // 3. pwd hash
-        // 4. write sql to db
-
         $validRule = [
             'admin_name' => 'required|string|max:255|regex:/^[a-zA-Z0-9]+$/',
             'password' => 'required|string|min:10|max:255|regex:/^\S+$/',
