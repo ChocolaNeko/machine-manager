@@ -14,7 +14,7 @@ class User extends Controller
 {
     /**
      * @OA\Post(
-     *      path="/v1/getuserinfo",
+     *      path="/v1/user/getuserinfo",
      *      operationId="getuserinfo",
      *      tags={"user"},
      *      summary="取得會員資料",
@@ -24,22 +24,6 @@ class User extends Controller
      *              "Authorization": {}
      *          }
      *      },
-     *      @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"user_name"},
-     *             @OA\Property(
-     *                 property="user_name",
-     *                 type="string",
-     *                 example="Bob",
-     *             ),
-     *             @OA\Property(
-     *                 property="password",
-     *                 type="string",
-     *                 example="579f2cfcfa83",
-     *             )
-     *         )
-     *      ),
      *      @OA\Response(
      *         response=200,
      *         description="OK",
@@ -51,10 +35,14 @@ class User extends Controller
      *                     type="bool"
      *                 ),
      *                 @OA\Property(
-     *                     property="message",
-     *                     type="string"
-     *                 ),
-     *                 example={"result": true, "message": "success"}
+     *                     property="data",
+     *                     type="object",
+     *                     @OA\Property(property="user_id", type="integer", example=12),
+     *                     @OA\Property(property="user_name", type="string", example="paul"),
+     *                     @OA\Property(property="email", type="string", example="paul@test.net"),
+     *                     @OA\Property(property="create_time", type="integer", example=1721202502),
+     *                     @OA\Property(property="balance", type="integer", example=200)
+     *                 )
      *             )
      *         )
      *       ),
@@ -87,19 +75,26 @@ class User extends Controller
      */
     public function GetUserInfo(Request $request)
     {
-        // 有帶 token 後才做後續驗證 管理員/會員功能
-        // 1. 用 token 取得權限資料，檢查是否為會員
-        // 2. 是會員 => 可查看會員資料，非會員 => 阻擋並回傳錯誤訊息
-        // test token = Bearer 12|HeLwM4wvcKufWPDtw3hiQbXdswSpnwvwpxx21Buy40080ca3
-
-        // 取得登入帳號資料
-        $user = $request->user();
-        var_dump($user);die();
+        // Bearer 2|dxS4opGLkgKduQg9roZ7ZRQrmM0tMHFF1rPkYt90b125b070
+        // 以 token 取得登入帳號資料
+        $userInfo = $request->user();
+        $res = [];
+        if (!is_null($userInfo->user_id)) {
+            $res['result'] = true;
+            $res['data'] = [
+                'user_id' => $userInfo->user_id,
+                'user_name' => $userInfo->user_name,
+                'email' => $userInfo->email,
+                'create_time' => $userInfo->create_time,
+                'balance' => $userInfo->balance,
+            ];
+        }
+        return response()->json($res);
     }
 
     /**
      * @OA\Post(
-     *      path="/v1/newuser",
+     *      path="/v1/user/newuser",
      *      operationId="newuser",
      *      tags={"user"},
      *      summary="新增會員",
@@ -217,7 +212,7 @@ class User extends Controller
         $newUserData['status'] = 1;
         date_default_timezone_set('Asia/Taipei');
         $newUserData['create_time'] = time();
-        $newUserData['money'] = 0;
+        $newUserData['balance'] = 0;
 
         try {
             $createUser = UserInfo::create($newUserData);

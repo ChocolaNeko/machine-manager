@@ -14,7 +14,7 @@
     },
     "paths": {
         "/": {},
-        "/v1/getuserlist": {
+        "/v1/admin/getuserlist": {
             "get": {
                 "tags": [
                     "admin"
@@ -232,7 +232,7 @@
                 ]
             }
         },
-        "/v1/newadmin": {
+        "/v1/admin/newadmin": {
             "post": {
                 "tags": [
                     "admin"
@@ -388,7 +388,7 @@
                 }
             }
         },
-        "/v1/getuserinfo": {
+        "/v1/user/getuserinfo": {
             "post": {
                 "tags": [
                     "user"
@@ -396,29 +396,6 @@
                 "summary": "取得會員資料",
                 "description": "取得會員資料",
                 "operationId": "getuserinfo",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "user_name"
-                                ],
-                                "properties": {
-                                    "user_name": {
-                                        "type": "string",
-                                        "example": "Bob"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "579f2cfcfa83"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -429,15 +406,33 @@
                                         "result": {
                                             "type": "boolean"
                                         },
-                                        "message": {
-                                            "type": "string"
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 12
+                                                },
+                                                "user_name": {
+                                                    "type": "string",
+                                                    "example": "paul"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "paul@test.net"
+                                                },
+                                                "create_time": {
+                                                    "type": "integer",
+                                                    "example": 1721202502
+                                                },
+                                                "balance": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
-                                    "type": "object",
-                                    "example": {
-                                        "result": true,
-                                        "message": "success"
-                                    }
+                                    "type": "object"
                                 }
                             }
                         }
@@ -479,7 +474,7 @@
                 ]
             }
         },
-        "/v1/newuser": {
+        "/v1/user/newuser": {
             "post": {
                 "tags": [
                     "user"

@@ -15,16 +15,16 @@ Route::get('/user', function (Request $request) {
 //Route::post('/login', [User::class, 'login']);
 
 // user
-Route::post('/newuser', [User::class, 'NewUser']);
+Route::post('/user/newuser', [User::class, 'NewUser']);
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
-    Route::post('/getuserinfo', [User::class, 'GetUserInfo']);
+    Route::post('/user/getuserinfo', [User::class, 'GetUserInfo']);
 });
 Route::post('/user/login', [User::class, 'Login']);
 
 // admin
-Route::post('/newadmin', [Admin::class, 'NewAdmin']);
+Route::post('/admin/newadmin', [Admin::class, 'NewAdmin']);
 Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
-    Route::get('/getuserlist', [Admin::class, 'GetUserList']);
+    Route::get('/admin/getuserlist', [Admin::class, 'GetUserList']);
 });
 Route::post('/admin/login', [Admin::class, 'Login']);
 

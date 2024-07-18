@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
         $exceptions->render(function (AuthenticationException $e, Request $request) {
-            $needTokenPath = ['/v1/getuserinfo','/v1/getuserlist'];
+            $needTokenPath = ['/v1/user/getuserinfo','/v1/admin/getuserlist'];
             if ($request->header('Accept') != 'application/json' && in_array($request->getRequestUri(), $needTokenPath)) {
                 return response()->json([
                     'error' => 'type error',

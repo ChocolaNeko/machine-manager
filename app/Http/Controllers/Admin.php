@@ -14,7 +14,7 @@ class Admin extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/v1/getuserlist",
+     *      path="/v1/admin/getuserlist",
      *      operationId="getuserlist",
      *      tags={"admin"},
      *      summary="取得會員列表",
@@ -340,7 +340,7 @@ class Admin extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/newadmin",
+     *      path="/v1/admin/newadmin",
      *      operationId="newadmin",
      *      tags={"admin"},
      *      summary="新增管理員",
