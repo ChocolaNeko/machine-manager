@@ -13,7 +13,7 @@ use Illuminate\Database\QueryException;
 class User extends Controller
 {
     /**
-     * @OA\Post(
+     * @OA\Get(
      *      path="/v1/user/getuserinfo",
      *      operationId="getuserinfo",
      *      tags={"user"},
@@ -80,14 +80,21 @@ class User extends Controller
         $userInfo = $request->user();
         $res = [];
         if (!is_null($userInfo->user_id)) {
-            $res['result'] = true;
-            $res['data'] = [
-                'user_id' => $userInfo->user_id,
-                'user_name' => $userInfo->user_name,
-                'email' => $userInfo->email,
-                'create_time' => $userInfo->create_time,
-                'balance' => $userInfo->balance,
-            ];
+            if ($userInfo->status == 0) {
+                $res['result'] = false;
+                $res['error_code'] = 400004; // 該會員為停用狀態
+                $res['error_msg'] = "The member has been temporarily suspended.";
+                return response()->json($res, 400);
+            } else {
+                $res['result'] = true;
+                $res['data'] = [
+                    'user_id' => $userInfo->user_id,
+                    'user_name' => $userInfo->user_name,
+                    'email' => $userInfo->email,
+                    'create_time' => $userInfo->create_time,
+                    'balance' => $userInfo->balance,
+                ];
+            }
         }
         return response()->json($res);
     }

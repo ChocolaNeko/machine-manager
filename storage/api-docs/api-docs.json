@@ -389,7 +389,7 @@
             }
         },
         "/v1/user/getuserinfo": {
-            "post": {
+            "get": {
                 "tags": [
                     "user"
                 ],

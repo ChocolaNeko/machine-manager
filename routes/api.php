@@ -17,7 +17,7 @@ Route::get('/user', function (Request $request) {
 // user
 Route::post('/user/newuser', [User::class, 'NewUser']);
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
-    Route::post('/user/getuserinfo', [User::class, 'GetUserInfo']);
+    Route::get('/user/getuserinfo', [User::class, 'GetUserInfo']);
 });
 Route::post('/user/login', [User::class, 'Login']);
 
