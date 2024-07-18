@@ -145,10 +145,32 @@ class Admin extends Controller
      *                     type="bool"
      *                 ),
      *                 @OA\Property(
-     *                     property="message",
-     *                     type="string"
+     *                     property="data",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="user_list",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="user_id", type="integer", example=1),
+     *                             @OA\Property(property="user_name", type="string", example="test"),
+     *                             @OA\Property(property="email", type="string", example="test@gg.tt"),
+     *                             @OA\Property(property="status", type="integer", example=1),
+     *                             @OA\Property(property="create_time", type="integer", example=1721202502),
+     *                             @OA\Property(property="balance", type="integer", example=100)
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="total_user_count",
+     *                         type="integer",
+     *                         example=75
+     *                     ),
+     *                     @OA\Property(
+     *                         property="page",
+     *                         type="integer",
+     *                         example=1
+     *                     )
      *                 ),
-     *                 example={"result": true, "message": "success"}
      *             )
      *         )
      *       ),
@@ -181,14 +203,6 @@ class Admin extends Controller
      */
     public function GetUserList(Request $request)
     {
-        // 有帶 token 後才做後續驗證 管理員/會員功能
-        // 1. 用 token 取得權限資料，檢查是否為會員
-        // 2. 是會員 => 可查看會員資料，非會員 => 阻擋並回傳錯誤訊息
-        // test token = Bearer 1|bcBoDsVncYMX97zW86rux1cpmc1Q9T3tym9LmiG5a02756b6
-        // 3. 驗證正確：檢查是否有帶參數，若沒有就 SELECT ALL
-        // 4. 驗證正確：有帶參數，先檢查參數是否正確
-        // 5. 確認參數都正確，再組語法
-
         $res = [];
         if ($request->query()) {
             // 有帶參數 => 檢查參數
@@ -265,7 +279,7 @@ class Admin extends Controller
             if ($sort && $order) {
                 $query->orderBy($sort, $order);
             } else {
-                $query->orderBy('user_id', 'ASC');
+                $query->orderBy('user_id', 'asc');
             }
             if ($page && $limit) {
                 $query->paginate($limit, ['*'], 'page', $page);
@@ -518,14 +532,6 @@ class Admin extends Controller
      */
     public function Login(Request $request)
     {
-        // 1. 撈 user_info or admin_info 檢查帳號密碼是否正確
-        // 2. 確認正確後，產生 token 存入 login_status，並同時寫入 user 等級
-        // login_status:
-        //      user_id
-        //      token
-        //      expire_time
-
-
         $email = $request->json('email');
         $password = $request->json('password');
         $admin = AdminInfo::where('email', $email)->first();
