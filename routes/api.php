@@ -25,6 +25,7 @@ Route::post('/user/login', [User::class, 'Login']);
 Route::post('/admin/newadmin', [Admin::class, 'NewAdmin']);
 Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::get('/admin/getuserlist', [Admin::class, 'GetUserList']);
+    Route::post('/admin/new-machine', [Admin::class, 'NewMachine']);
 });
 Route::post('/admin/login', [Admin::class, 'Login']);
 

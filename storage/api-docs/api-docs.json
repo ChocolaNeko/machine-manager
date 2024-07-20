@@ -232,6 +232,95 @@
                 ]
             }
         },
+        "/v1/admin/new-machine": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "新增設備",
+                "description": "新增設備",
+                "operationId": "new-machine",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "machine_name",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "machine_name": {
+                                        "type": "string",
+                                        "example": "Washing Machine"
+                                    },
+                                    "status": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": true,
+                                        "message": "success"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "error_code": {
+                                            "type": "integer"
+                                        },
+                                        "error_msg": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 400001,
+                                        "error_msg": "The JSON payload is not in the correct format."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
         "/v1/admin/newadmin": {
             "post": {
                 "tags": [

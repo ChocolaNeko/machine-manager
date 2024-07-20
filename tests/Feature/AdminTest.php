@@ -267,6 +267,77 @@ class AdminTest extends TestCase
     }
 
     /**
+     * 測試 API /v1/admin/new-machine
+     * 未帶入 auth key
+     */
+    public function test_new_machine_unauthenticated()
+    {
+        // call API without skip middleware
+        $response = $this->postJson('/v1/admin/new-machine');
+        $response->assertStatus(401);
+        $response->assertJson([
+            'result' => false,
+            'error_code' => 401001,
+            'error_msg' => 'you need token'
+        ]);
+    }
+
+    /**
+     * 測試 API /v1/admin/new-machine
+     * 預設有帶入 auth key 情境、未帶入參數
+     */
+    public function test_new_machine_noparam()
+    {
+        // skip middleware (sanctum) test
+        $this->withoutMiddleware();
+
+        // call API
+        $response = $this->postJson('/v1/admin/new-machine');
+        $response->assertStatus(400);
+        $response->assertJson([
+            'result' => false,
+            'error_code' => 400001,
+            'error_msg' => 'machine_name 為必填欄位, status 為必填欄位'
+        ]);
+    }
+
+    /**
+     * 測試 API /v1/admin/new-machine
+     * 預設有帶入 auth key 情境、有帶入參數
+     */
+    public function test_new_machine_success()
+    {
+        // skip middleware (sanctum) test
+        $this->withoutMiddleware();
+
+        // mock insert
+        $adminMock = Mockery::mock('alias:App\Models\MachineInfo');
+        $adminMock->shouldReceive('create')
+            ->once()
+            ->with(Mockery::on(function ($arg) {
+                return $arg['machine_name'] === 'test machine'
+                    && $arg['status'] === 1;
+            }))
+            ->andReturn((object) [
+                'id' => 1,
+                'machine_name' => 'test machine',
+                'status' => 1
+            ]);
+
+        // call api
+        $response = $this->postJson('/v1/admin/new-machine', [
+            'machine_name' => 'test machine',
+            'status' => 1
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'result' => true,
+            'message' => "新增設備成功",
+        ]);
+    }
+
+    /**
      * 測試 API /v1/admin/newadmin
      * 測試 password 長度小於 10
      */

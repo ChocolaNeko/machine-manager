@@ -75,7 +75,7 @@ class User extends Controller
      */
     public function GetUserInfo(Request $request)
     {
-        // Bearer 2|dxS4opGLkgKduQg9roZ7ZRQrmM0tMHFF1rPkYt90b125b070
+        // Bearer 4|CHlmWkeYrDhgP1kZPggR7LQQH7lzDGiDhI4fsLu80101520a
         // 以 token 取得登入帳號資料
         $userInfo = $request->user();
         $res = [];

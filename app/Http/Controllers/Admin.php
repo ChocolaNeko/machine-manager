@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminInfo;
+use App\Models\MachineInfo;
 use App\Models\UserInfo;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -336,6 +337,145 @@ class Admin extends Controller
         }
 
         return response()->json($res);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/v1/admin/new-machine",
+     *     operationId="new-machine",
+     *     tags={"admin"},
+     *     summary="新增設備",
+     *     description="新增設備",
+     *     security={
+     *           {
+     *               "Authorization": {}
+     *           }
+     *     },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"machine_name", "status"},
+     *             @OA\Property(
+     *                 property="machine_name",
+     *                 type="string",
+     *                 example="Washing Machine",
+     *             ),
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="int",
+     *                 example="1",
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string"
+     *                 ),
+     *                 example={"result": true, "message": "success"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_code",
+     *                     type="int"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_msg",
+     *                     type="string"
+     *                 ),
+     *                 example={"result": false, "error_code": 400001, "error_msg": "The JSON payload is not in the correct format."}
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function NewMachine(Request $request)
+    {
+        $validRule = [
+            'machine_name' => 'required|string|max:255',
+            'status' => 'required|integer|in:0,1'
+        ];
+
+        $errMsg = [
+            'required' => '為必填欄位',
+            'string' => '必須為字串',
+            'integer' => '必須為 0 或 1',
+            'max' => '超出最大值(:max)',
+            'in' => '欄位非指定值(:values)'
+        ];
+
+        $resultMsg = "";
+
+        $validator = Validator::make($request->json()->all(), $validRule, $errMsg);
+        // 資料驗證有誤，回傳 error msg
+        if ($validator->fails()) {
+            foreach ($validator->errors()->messages() as $k => $v) {
+                $resultMsg = $resultMsg . $k . " ";
+                foreach ($v as $k2 => $v2) {
+                    $resultMsg = $resultMsg . $v2 . ", ";
+                }
+            }
+            $resultMsg = rtrim($resultMsg, ", ");
+
+            return response()->json([
+                'result' => false,
+                'error_code' => 400001, // API 驗證錯誤
+                'error_msg' => $resultMsg,
+            ], 400);
+        }
+
+        // 驗證通過，寫入 machine_info
+        $newMachine['machine_name'] = $request->json('machine_name');
+        $newMachine['status'] = $request->json('status');
+        date_default_timezone_set('Asia/Taipei');
+        $newMachine['create_time'] = time();
+        $newMachine['update_time'] = time();
+
+        try {
+            $createAdmin = MachineInfo::create($newMachine);
+            if ($createAdmin) {
+                return response()->json([
+                    'result' => 'true',
+                    'message' => '新增設備成功',
+                ]);
+            }
+        } catch (QueryException $queryException) {
+            // 寫入 DB 異常
+            Log::error('資料寫入錯誤', ['exception' => $queryException->getMessage()]);
+            return response()->json([
+                'result' => false,
+                'error_code' => 400101, // 寫入 DB 異常
+                'error_msg' => $queryException->getMessage(),
+            ], 400);
+        } catch (\Exception $e) {
+            // 其他異常
+            Log::error('資料寫入錯誤', ['exception' => $e->getMessage()]);
+            return response()->json([
+                'result' => false,
+                'error_code' => 400002, // 其他異常
+                'error_msg' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**
