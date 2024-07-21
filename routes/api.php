@@ -20,6 +20,7 @@ Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
     Route::get('/user/userinfo', [User::class, 'UserInfo']);
     Route::get('/user/payment-records', [User::class, 'PaymentRecord']);
     Route::post('/user/payment', [User::class, 'Payment']);
+    Route::post('/user/logout', [User::class, 'Logout']);
 });
 Route::post('/user/login', [User::class, 'Login']);
 
@@ -28,5 +29,6 @@ Route::post('/admin/newadmin', [Admin::class, 'NewAdmin']);
 Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::get('/admin/userlist', [Admin::class, 'GetUserList']);
     Route::post('/admin/new-machine', [Admin::class, 'NewMachine']);
+    Route::post('/admin/logout', [Admin::class, 'Logout']);
 });
 Route::post('/admin/login', [Admin::class, 'Login']);

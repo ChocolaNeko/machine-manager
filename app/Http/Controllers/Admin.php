@@ -693,4 +693,51 @@ class Admin extends Controller
             'data' => ['token' => $token],
         ]);
     }
+
+    /**
+     * @OA\Post(
+     *      path="/v1/admin/logout",
+     *      operationId="admin logout",
+     *      tags={"admin"},
+     *      summary="管理員登出",
+     *      description="管理員登出",
+     *      security={
+     *          {
+     *              "Authorization": {}
+     *          }
+     *      },
+     *      @OA\Response(
+     *         response=200,
+     *         description="登出成功",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool",
+     *                     example=true
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                     example="Logged out successfully"
+     *                 )
+     *             )
+     *         )
+     *       )
+     *     )
+     */
+    public function Logout(Request $request)
+    {
+        // 以 token 取得目前 admin 資訊
+        $adminInfo = $request->user();
+
+        // 清除 token
+        $adminInfo->tokens()->delete();
+
+        return response()->json([
+            'result' => true,
+            'message' => 'Logged out successfully'
+        ]);
+    }
 }

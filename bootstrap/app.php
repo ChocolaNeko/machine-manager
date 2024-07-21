@@ -38,8 +38,11 @@ return Application::configure(basePath: dirname(__DIR__))
             $needTokenPath = [
                 '/v1/user/userinfo',
                 '/v1/user/payment',
+                '/v1/user/payment-records',
+                '/v1/user/logout',
                 '/v1/admin/userlist',
                 '/v1/admin/new-machine',
+                '/v1/admin/logout',
             ];
             if ($request->header('Accept') != 'application/json' && in_array($request->getRequestUri(), $needTokenPath)) {
                 return response()->json([

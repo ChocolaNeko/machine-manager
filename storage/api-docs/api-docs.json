@@ -477,6 +477,43 @@
                 }
             }
         },
+        "/v1/admin/logout": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "管理員登出",
+                "description": "管理員登出",
+                "operationId": "admin logout",
+                "responses": {
+                    "200": {
+                        "description": "登出成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
         "/v1/user/userinfo": {
             "get": {
                 "tags": [
@@ -1037,6 +1074,43 @@
                         }
                     }
                 }
+            }
+        },
+        "/v1/user/logout": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "會員登出",
+                "description": "會員登出",
+                "operationId": "user logout",
+                "responses": {
+                    "200": {
+                        "description": "登出成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
             }
         }
     },

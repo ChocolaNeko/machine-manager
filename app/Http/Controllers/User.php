@@ -854,9 +854,50 @@ class User extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *      path="/v1/user/logout",
+     *      operationId="user logout",
+     *      tags={"user"},
+     *      summary="會員登出",
+     *      description="會員登出",
+     *      security={
+     *          {
+     *              "Authorization": {}
+     *          }
+     *      },
+     *      @OA\Response(
+     *         response=200,
+     *         description="登出成功",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool",
+     *                     example=true
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                     example="Logged out successfully"
+     *                 )
+     *             )
+     *         )
+     *       )
+     *     )
+     */
     public function Logout(Request $request)
     {
-        // 1. 檢查帶入 token 與 user_id 是否正確
-        // 2. 若正確，清除 login_status 上的該筆資料，完成登出動作
+        // 以 token 取得目前 user 資訊
+        $userInfo = $request->user();
+
+        // 清除 token
+        $userInfo->tokens()->delete();
+
+        return response()->json([
+            'result' => true,
+            'message' => 'Logged out successfully'
+        ]);
     }
 }
