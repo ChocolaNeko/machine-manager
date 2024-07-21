@@ -17,7 +17,7 @@ class AdminTest extends TestCase
     }
 
     /**
-     * 測試 API /v1/admin/getuserlist
+     * 測試 API /v1/admin/userlist
      * 預設有帶入 auth key 情境、無帶入參數、無回傳資料
      */
     public function test_getUserList_noparam_nodata()
@@ -34,7 +34,7 @@ class AdminTest extends TestCase
             0, // 總資料數量 ($data->total())
             50, // 每頁資料數量
             1, // 當前頁數
-            ['path' => url('/v1/admin/getuserlist')] // API path
+            ['path' => url('/v1/admin/userlist')] // API path
         );
 
         // mock query builder
@@ -50,7 +50,7 @@ class AdminTest extends TestCase
             ->andReturn($paginator);
 
         // call API
-        $response = $this->getJson('/v1/admin/getuserlist');
+        $response = $this->getJson('/v1/admin/userlist');
 
         // assert status & response json
         $response->assertStatus(200);
@@ -65,7 +65,7 @@ class AdminTest extends TestCase
     }
 
     /**
-     * 測試 API /v1/admin/getuserlist
+     * 測試 API /v1/admin/userlist
      * 預設有帶入 auth key 情境、無帶入參數、有回傳資料
      */
     public function test_getUserList_noparam_havedata()
@@ -99,7 +99,7 @@ class AdminTest extends TestCase
             2, // 總資料數量 ($data->total())
             50, // 每頁資料數量
             1, // 當前頁數
-            ['path' => url('/v1/admin/getuserlist')] // API path
+            ['path' => url('/v1/admin/userlist')] // API path
         );
 
         // mock query builder
@@ -115,7 +115,7 @@ class AdminTest extends TestCase
             ->andReturn($paginator);
 
         // call API
-        $response = $this->getJson('/v1/admin/getuserlist');
+        $response = $this->getJson('/v1/admin/userlist');
         $response->assertStatus(200);
         $response->assertJson([
             'result' => true,
@@ -145,7 +145,7 @@ class AdminTest extends TestCase
     }
 
     /**
-     * 測試 API /v1/admin/getuserlist
+     * 測試 API /v1/admin/userlist
      * 預設有帶入 auth key 情境、有帶入參數(is_enable, user_name)、無回傳資料
      */
     public function test_getUserList_haveparam_nodata()
@@ -174,7 +174,7 @@ class AdminTest extends TestCase
             ->andReturn(0);
 
         // call API
-        $response = $this->getJson('/v1/admin/getuserlist?is_enable=1&user_name=tempuser');
+        $response = $this->getJson('/v1/admin/userlist?is_enable=1&user_name=tempuser');
 
         // assert status & response json
         $response->assertStatus(200);
@@ -189,7 +189,7 @@ class AdminTest extends TestCase
     }
 
     /**
-     * 測試 API /v1/admin/getuserlist
+     * 測試 API /v1/admin/userlist
      * 預設有帶入 auth key 情境、有帶入參數(create_time, create_time_operator, amount, amount_operator)、有回傳資料
      */
     public function test_getUserList_haveparam_havedata()
@@ -227,7 +227,7 @@ class AdminTest extends TestCase
             ->andReturn(1);
 
         // call API
-        $response = $this->getJson('/v1/admin/getuserlist?create_time=1721202502&create_time_operator=<&amount=500&amount_operator=>=');
+        $response = $this->getJson('/v1/admin/userlist?create_time=1721202502&create_time_operator=<&amount=500&amount_operator=>=');
 
         // assert status & response json
         $response->assertStatus(200);
@@ -251,13 +251,13 @@ class AdminTest extends TestCase
     }
 
     /**
-     * 測試 API /v1/admin/getuserlist
+     * 測試 API /v1/admin/userlist
      * 未帶入 auth key
      */
     public function test_getUserList_unauthenticated()
     {
         // call API without skip middleware
-        $response = $this->getJson('/v1/admin/getuserlist');
+        $response = $this->getJson('/v1/admin/userlist');
         $response->assertStatus(401);
         $response->assertJson([
             'result' => false,

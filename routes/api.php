@@ -17,14 +17,15 @@ Route::get('/user', function (Request $request) {
 // user
 Route::post('/user/newuser', [User::class, 'NewUser']);
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
-    Route::get('/user/getuserinfo', [User::class, 'GetUserInfo']);
+    Route::get('/user/userinfo', [User::class, 'UserInfo']);
+    Route::post('/user/payment', [User::class, 'Payment']);
 });
 Route::post('/user/login', [User::class, 'Login']);
 
 // admin
 Route::post('/admin/newadmin', [Admin::class, 'NewAdmin']);
 Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
-    Route::get('/admin/getuserlist', [Admin::class, 'GetUserList']);
+    Route::get('/admin/userlist', [Admin::class, 'GetUserList']);
     Route::post('/admin/new-machine', [Admin::class, 'NewMachine']);
 });
 Route::post('/admin/login', [Admin::class, 'Login']);

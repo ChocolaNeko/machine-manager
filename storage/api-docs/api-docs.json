@@ -14,14 +14,14 @@
     },
     "paths": {
         "/": {},
-        "/v1/admin/getuserlist": {
+        "/v1/admin/userlist": {
             "get": {
                 "tags": [
                     "admin"
                 ],
                 "summary": "取得會員列表",
                 "description": "取得會員列表",
-                "operationId": "getuserlist",
+                "operationId": "userlist",
                 "parameters": [
                     {
                         "name": "is_enable",
@@ -477,14 +477,14 @@
                 }
             }
         },
-        "/v1/user/getuserinfo": {
+        "/v1/user/userinfo": {
             "get": {
                 "tags": [
                     "user"
                 ],
                 "summary": "取得會員資料",
                 "description": "取得會員資料",
-                "operationId": "getuserinfo",
+                "operationId": "userinfo",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -550,6 +550,114 @@
                                         "result": false,
                                         "error_code": 401001,
                                         "error_msg": "Unauthenticated."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
+        "/v1/user/payment": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "會員付款",
+                "description": "會員付款",
+                "operationId": "payment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "machine_id",
+                                    "user_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "machine_id": {
+                                        "type": "integer",
+                                        "example": "12"
+                                    },
+                                    "amount": {
+                                        "type": "integer",
+                                        "example": "150"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 21
+                                                },
+                                                "machine_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "transaction_amount": {
+                                                    "type": "integer",
+                                                    "example": 50
+                                                },
+                                                "after_transaction_balance": {
+                                                    "type": "integer",
+                                                    "example": 750
+                                                },
+                                                "transaction_time": {
+                                                    "type": "integer",
+                                                    "example": 1721540702
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "error_code": {
+                                            "type": "integer"
+                                        },
+                                        "error_msg": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 400001,
+                                        "error_msg": "The JSON payload is not in the correct format."
                                     }
                                 }
                             }

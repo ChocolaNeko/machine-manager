@@ -15,8 +15,8 @@ class Admin extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/v1/admin/getuserlist",
-     *      operationId="getuserlist",
+     *      path="/v1/admin/userlist",
+     *      operationId="userlist",
      *      tags={"admin"},
      *      summary="取得會員列表",
      *      description="取得會員列表",

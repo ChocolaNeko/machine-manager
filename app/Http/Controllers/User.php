@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MachineInfo;
+use App\Models\MachinePaymentRecord;
 use App\Models\UserInfo;
+use App\Models\UserPaymentRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\QueryException;
-
 class User extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/v1/user/getuserinfo",
-     *      operationId="getuserinfo",
+     *      path="/v1/user/userinfo",
+     *      operationId="userinfo",
      *      tags={"user"},
      *      summary="取得會員資料",
      *      description="取得會員資料",
@@ -73,9 +76,8 @@ class User extends Controller
      *       ),
      *     )
      */
-    public function GetUserInfo(Request $request)
+    public function UserInfo(Request $request)
     {
-        // Bearer 4|CHlmWkeYrDhgP1kZPggR7LQQH7lzDGiDhI4fsLu80101520a
         // 以 token 取得登入帳號資料
         $userInfo = $request->user();
         $res = [];
@@ -83,7 +85,7 @@ class User extends Controller
             if ($userInfo->status == 0) {
                 $res['result'] = false;
                 $res['error_code'] = 400004; // 該會員為停用狀態
-                $res['error_msg'] = "The member has been temporarily suspended.";
+                $res['error_msg'] = "會員為停用狀態";
                 return response()->json($res, 400);
             } else {
                 $res['result'] = true;
@@ -97,6 +99,221 @@ class User extends Controller
             }
         }
         return response()->json($res);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/v1/user/payment",
+     *      operationId="payment",
+     *      tags={"user"},
+     *      summary="會員付款",
+     *      description="會員付款",
+     *      security={
+     *           {
+     *               "Authorization": {}
+     *           }
+     *       },
+     *      @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"machine_id", "user_id", "amount"},
+     *             @OA\Property(
+     *                 property="machine_id",
+     *                 type="int",
+     *                 example="12",
+     *             ),
+     *             @OA\Property(
+     *                 property="amount",
+     *                 type="int",
+     *                 example="150",
+     *             )
+     *         )
+     *      ),
+     *      @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="data",
+     *                     type="object",
+     *                     @OA\Property(property="user_id", type="integer", example=21),
+     *                     @OA\Property(property="machine_id", type="integer", example=1),
+     *                     @OA\Property(property="transaction_amount", type="integer", example=50),
+     *                     @OA\Property(property="after_transaction_balance", type="integer", example=750),
+     *                     @OA\Property(property="transaction_time", type="integer", example=1721540702)
+     *                 )
+     *             )
+     *         )
+     *       ),
+     *      @OA\Response(
+     *         response=400,
+     *         description="Error",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_code",
+     *                     type="int"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_msg",
+     *                     type="string"
+     *                 ),
+     *                 example={"result": false, "error_code": 400001, "error_msg": "The JSON payload is not in the correct format."}
+     *             )
+     *         )
+     *       ),
+     *     )
+     */
+    public function Payment(Request $request)
+    {
+        $validRule = [
+            'machine_id' => 'required|integer',
+            'amount' => 'required|integer'
+        ];
+
+        $errMsg = [
+            'required' => '為必填欄位',
+            'integer' => '必須為整數'
+        ];
+
+        $resultMsg = "";
+
+        $validator = Validator::make($request->json()->all(), $validRule, $errMsg);
+        // 資料驗證有誤，回傳 error msg
+        if ($validator->fails()) {
+            foreach ($validator->errors()->messages() as $k => $v) {
+                $resultMsg = $resultMsg . $k . " ";
+                foreach ($v as $k2 => $v2) {
+                    $resultMsg = $resultMsg . $v2 . ", ";
+                }
+            }
+            $resultMsg = rtrim($resultMsg, ", ");
+
+            return response()->json([
+                'result' => false,
+                'error_code' => 400001, // API 驗證錯誤
+                'error_msg' => $resultMsg,
+            ], 400);
+        }
+
+        $machineId = $request->json('machine_id');
+        $amount = $request->json('amount');
+
+        // 用 machine_id 檢查該設備是否存在且啟用，不存在或未啟用回傳 error
+        $machine = MachineInfo::where('machine_id', $machineId);
+        if (!$machine->exists()) {
+            return response()->json([
+                'result' => false,
+                'error_code' => 400004, // 資料不存在
+                'error_msg' => "該設備不存在",
+            ], 400);
+        }
+
+        $mData = $machine->first();
+        if ($mData->status == 0) {
+            return response()->json([
+                'result' => false,
+                'error_code' => 400005, // 設備為停用狀態
+                'error_msg' => "該設備已停用",
+            ], 400);
+        }
+
+        // 設備為啟用狀態，以 auth token 取得 user_id，並檢查會員是否存在及停用狀態
+        $userInfo = $request->user();
+        if (!is_null($userInfo->user_id)) {
+            if ($userInfo->status == 0) {
+                return response()->json([
+                    'result' => false,
+                    'error_code' => 400004, // 該會員為停用狀態
+                    'error_msg' => "會員為停用狀態",
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'result' => false,
+                'error_code' => 400005, // 該會員不存在
+                'error_msg' => "該會員不存在",
+            ], 400);
+        }
+
+        // 3. 以 user_id 查 user_info
+        // 4. 取 user_info balance(餘額) 與 amount(消費金額) 比較消費金額是否高於餘額，高於餘額回傳 error
+        if ($userInfo->balance < $amount) {
+            return response()->json([
+                'result' => false,
+                'error_code' => 400006, // 會員餘額不足
+                'error_msg' => "會員餘額不足",
+            ], 400);
+        }
+        // 確認消費金額小於餘額，開始交易機制
+        DB::beginTransaction();
+        // 鎖定該筆 user_info，扣款前再次檢查餘額是否足夠，再對 user_info.balance 扣款
+        try {
+            $user = UserInfo::where('user_id', $userInfo->user_id)->lockForUpdate()->firstOrFail();
+            if ($user->balance < $amount) {
+                throw new \Exception('會員餘額不足', 400006);
+            }
+
+            $user->balance = $user->balance - $amount;
+            $user->save();
+
+            // 將交易紀錄寫入 會員交易紀錄
+            $afterBalance = $user->balance;
+            $transactionTime = time();
+            UserPaymentRecord::Create([
+                'user_id' => $userInfo->user_id,
+                'machine_id' => $machineId,
+                'transaction_amount' => $amount,
+                'transaction_type' => 'p', // 扣款代碼為 'p'
+                'after_transaction_balance' => $afterBalance,
+                'transaction_time' => $transactionTime,
+                'note' => null
+            ]);
+
+            // 將交易紀錄寫入 設備交易紀錄
+            MachinePaymentRecord::create([
+                'machine_id' => $machineId,
+                'user_id' => $userInfo->user_id,
+                'transaction_amount' => $amount,
+                'transaction_type' => 'p', // 扣款代碼為 'p'
+                'transaction_time' => $transactionTime,
+                'note' => null
+            ]);
+
+            // 三張表都更新/寫入資料，結束交易機制
+            DB::commit();
+
+            // 回傳交易成功訊息與會員交易後餘額
+            return response()->json([
+                'result' => true,
+                'data' => [
+                    'user_id' => $userInfo->user_id,
+                    'machine_id' => $machineId,
+                    'transaction_amount' => $amount,
+                    'after_transaction_balance' => $afterBalance,
+                    'transaction_time' => $transactionTime
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'result' => false,
+                'error_code' => $e->getCode(),
+                'error_msg' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**
@@ -171,11 +388,6 @@ class User extends Controller
      */
     public function NewUser(Request $request)
     {
-        // 1. get user input data
-        // 2. vaildation input
-        // 3. pwd hash
-        // 4. write sql to db
-
         $validRule = [
             'user_name' => 'required|string|max:255|regex:/^[a-zA-Z0-9]+$/',
             'password' => 'required|string|min:10|max:255|regex:/^\S+$/',
@@ -299,14 +511,6 @@ class User extends Controller
      */
     public function Login(Request $request)
     {
-        // 1. 撈 user_info or admin_info 檢查帳號密碼是否正確
-        // 2. 確認正確後，產生 token 存入 login_status，並同時寫入 user 等級
-        // login_status:
-        //      user_id
-        //      token
-        //      expire_time
-
-
         $email = $request->json('email');
         $password = $request->json('password');
         $user = UserInfo::where('email', $email)->first();
