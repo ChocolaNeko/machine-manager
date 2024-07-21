@@ -671,6 +671,218 @@
                 ]
             }
         },
+        "/v1/user/payment-records": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "查詢交易紀錄",
+                "description": "查詢交易紀錄",
+                "operationId": "payment-records",
+                "parameters": [
+                    {
+                        "name": "transaction_time",
+                        "in": "query",
+                        "description": "交易時間",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "1721547894"
+                    },
+                    {
+                        "name": "transaction_time_operator",
+                        "in": "query",
+                        "description": "交易時間 運算子",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ">"
+                    },
+                    {
+                        "name": "transaction_amount",
+                        "in": "query",
+                        "description": "交易金額",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "120"
+                    },
+                    {
+                        "name": "transaction_amount_operator",
+                        "in": "query",
+                        "description": "交易金額 運算子",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ">"
+                    },
+                    {
+                        "name": "machine_id",
+                        "in": "query",
+                        "description": "設備 ID",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "transaction_type",
+                        "in": "query",
+                        "description": "交易類型(p:扣款/c:儲值/o:其他)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "p"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "第幾頁",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "每頁幾筆",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        },
+                        "example": "50"
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "排序欄位",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "machine_id"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "排序方式",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "asc"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "record_list": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "machine_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "machine_name": {
+                                                                "type": "string",
+                                                                "example": "Washing Machine"
+                                                            },
+                                                            "transaction_amount": {
+                                                                "type": "integer",
+                                                                "example": 120
+                                                            },
+                                                            "after_transaction_balance": {
+                                                                "type": "integer",
+                                                                "example": 750
+                                                            },
+                                                            "transaction_type": {
+                                                                "type": "string",
+                                                                "example": "p"
+                                                            },
+                                                            "transaction_time": {
+                                                                "type": "integer",
+                                                                "example": 1721202502
+                                                            },
+                                                            "note": {
+                                                                "type": "string",
+                                                                "example": "test payment"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "total_record_count": {
+                                                    "type": "integer",
+                                                    "example": 75
+                                                },
+                                                "page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error_code": {
+                                            "type": "integer",
+                                            "example": 401001
+                                        },
+                                        "error_msg": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object",
+                                    "example": {
+                                        "result": false,
+                                        "error_code": 401001,
+                                        "error_msg": "Unauthenticated."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ]
+            }
+        },
         "/v1/user/newuser": {
             "post": {
                 "tags": [

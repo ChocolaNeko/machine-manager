@@ -6,6 +6,7 @@ use App\Models\MachineInfo;
 use App\Models\MachinePaymentRecord;
 use App\Models\UserInfo;
 use App\Models\UserPaymentRecord;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -314,6 +315,326 @@ class User extends Controller
                 'error_msg' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/v1/user/payment-records",
+     *      operationId="payment-records",
+     *      tags={"user"},
+     *      summary="查詢交易紀錄",
+     *      description="查詢交易紀錄",
+     *      security={
+     *          {
+     *              "Authorization": {}
+     *          }
+     *      },
+     *      @OA\Parameter(
+     *          name="transaction_time",
+     *          description="交易時間",
+     *          required=false,
+     *          in="query",
+     *          example="1721547894",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="transaction_time_operator",
+     *          description="交易時間 運算子",
+     *          required=false,
+     *          in="query",
+     *          example=">",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="transaction_amount",
+     *          description="交易金額",
+     *          required=false,
+     *          in="query",
+     *          example="120",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="transaction_amount_operator",
+     *          description="交易金額 運算子",
+     *          required=false,
+     *          in="query",
+     *          example=">",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="machine_id",
+     *          description="設備 ID",
+     *          required=false,
+     *          in="query",
+     *          example="1",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="transaction_type",
+     *          description="交易類型(p:扣款/c:儲值/o:其他)",
+     *          required=false,
+     *          in="query",
+     *          example="p",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="page",
+     *          description="第幾頁",
+     *          required=false,
+     *          in="query",
+     *          example="1",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="limit",
+     *          description="每頁幾筆",
+     *          required=false,
+     *          in="query",
+     *          example="50",
+     *          @OA\Schema(
+     *              type="int"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="sort",
+     *          description="排序欄位",
+     *          required=false,
+     *          in="query",
+     *          example="machine_id",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="order",
+     *          description="排序方式",
+     *          required=false,
+     *          in="query",
+     *          example="asc",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="data",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="record_list",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="machine_id", type="integer", example=1),
+     *                             @OA\Property(property="machine_name", type="string", example="Washing Machine"),
+     *                             @OA\Property(property="transaction_amount", type="integer", example=120),
+     *                             @OA\Property(property="after_transaction_balance", type="integer", example=750),
+     *                             @OA\Property(property="transaction_type", type="string", example="p"),
+     *                             @OA\Property(property="transaction_time", type="integer", example=1721202502),
+     *                             @OA\Property(property="note", type="string", example="test payment")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="total_record_count",
+     *                         type="integer",
+     *                         example=75
+     *                     ),
+     *                     @OA\Property(
+     *                         property="page",
+     *                         type="integer",
+     *                         example=1
+     *                     )
+     *                 ),
+     *             )
+     *         )
+     *       ),
+     *      @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="result",
+     *                     type="bool",
+     *                     example=false
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_code",
+     *                     type="int",
+     *                     example=401001
+     *                 ),
+     *                 @OA\Property(
+     *                     property="error_msg",
+     *                     type="string",
+     *                     example="Unauthenticated."
+     *                 ),
+     *                 example={"result": false, "error_code": 401001, "error_msg": "Unauthenticated."}
+     *             )
+     *         )
+     *       ),
+     *     )
+     */
+    public function PaymentRecord(Request $request)
+    {
+        $res = [];
+        if ($request->query()) {
+            $validRule = [
+                'transaction_time' => 'nullable|integer',
+                'transaction_time_operator' => 'nullable|string|in:>,<,=,>=,<=',
+                'transaction_amount' => 'nullable|integer',
+                'transaction_amount_operator' => 'nullable|string|in:>,<,=,>=,<=',
+                'machine_id' => 'nullable|integer',
+                'transaction_type' => 'nullable|string|max:10|in:p,c,o',
+                'page' => 'nullable|integer|min:1',
+                'limit' => 'nullable|integer|min:1',
+                'sort' => 'nullable|string|in:transaction_amount,transaction_time,machine_id',
+                'order' => 'nullable|string|in:ASC,DESC,asc,desc'
+            ];
+
+            $errMsg = [
+                'string' => '必須為字串',
+                'integer' => '必須為整數',
+                'max' => '超出最大值(:max)',
+                'min' => '低於最小值(:min)',
+                'in' => '欄位非指定值(:values)',
+            ];
+
+            $validator = Validator::make($request->all(), $validRule, $errMsg);
+            // 資料驗證有誤，回傳 error msg
+            $resultMsg = "";
+            if ($validator->fails()) {
+                foreach ($validator->errors()->messages() as $k => $v) {
+                    $resultMsg = $resultMsg . $k . " ";
+                    foreach ($v as $k2 => $v2) {
+                        $resultMsg = $resultMsg . $v2 . ", ";
+                    }
+                }
+                $resultMsg = rtrim($resultMsg, ", ");
+
+                return response()->json([
+                    'result' => false,
+                    'error_code' => 400001, // API 驗證錯誤
+                    'error_msg' => $resultMsg,
+                ], 400);
+            }
+
+            $transactionTime = $request->query('transaction_time');
+            $transactionTimeOperator = $request->query('transaction_time_operator');
+            $transactionAmount = $request->query('transaction_amount');
+            $transactionAmountOperator = $request->query('transaction_amount_operator');
+            $machineId = $request->query('machine_id');
+            $transactionType = $request->query('transaction_type');
+            $page = $request->query('page');
+            $limit = $request->query('limit');
+            $sort = $request->query('sort');
+            $order = $request->query('order');
+
+            $query = DB::table('user_payment_record as upr')
+                ->leftJoin('machine_info as mi', 'upr.machine_id', '=', 'mi.machine_id')
+                ->select(
+                    'upr.user_id', 'upr.machine_id', 'mi.machine_name', 'upr.transaction_amount',
+                    'upr.transaction_type', 'upr.after_transaction_balance', 'upr.transaction_time', 'upr.note');
+
+            if ($transactionTime && $transactionTimeOperator) {
+                $query->where('transaction_time', $transactionTimeOperator, $transactionTime);
+            }
+            if ($transactionAmount && $transactionAmountOperator) {
+                $query->where('transaction_amount', $transactionAmountOperator, $transactionAmount);
+            }
+            if ($machineId) {
+                $query->where('machine_id', $machineId);
+            }
+            if ($transactionType) {
+                $query->where('transaction_type', '=', $transactionType);
+            }
+            if ($sort && $order) {
+                $query->orderBy($sort, $order);
+            } else {
+                $query->orderBy('transaction_time', 'asc');
+            }
+            if ($page && $limit) {
+                $query->paginate($limit, ['*'], 'page', $page);
+            } else {
+                $query->paginate(50, ['*'], 'page', 1);
+            }
+            $data = $query->get();
+
+            $recordList = [];
+            foreach ($data as $d) {
+                $record = [
+                    'machine_id' => $d->machine_id,
+                    'machine_name' => $d->machine_name,
+                    'transaction_amount' => $d->transaction_amount,
+                    'after_transaction_balance' => $d->after_transaction_balance,
+                    'transaction_type' => $d->transaction_type,
+                    'transaction_time' => $d->transaction_time,
+                    'note' => is_null($d->note) ? '' : $d->note
+                ];
+                $recordList[] = $record;
+            }
+
+            $res['result'] = true;
+            $res['data'] = [
+                'record_list' => $recordList,
+                'total_record_count' => $data->count(),
+                'page' => is_null($page) ? 1:$page
+            ];
+        } else {
+            // 沒帶參數 => 預設查詢第一頁，每頁50筆資料，以 transaction_time ASC 排序
+            $data = DB::table('user_payment_record as upr')
+                ->leftJoin('machine_info as mi', 'upr.machine_id', '=', 'mi.machine_id')
+                ->select(
+                    'upr.user_id', 'upr.machine_id', 'mi.machine_name', 'upr.transaction_amount',
+                    'upr.transaction_type', 'upr.after_transaction_balance', 'upr.transaction_time', 'upr.note')
+                ->orderBy('transaction_time', 'asc')
+                ->paginate(50, ['*'], 'page', 1);
+
+            $recordList = [];
+            foreach ($data as $d) {
+                $record = [
+                    'machine_id' => $d->machine_id,
+                    'machine_name' => $d->machine_name,
+                    'transaction_amount' => $d->transaction_amount,
+                    'after_transaction_balance' => $d->after_transaction_balance,
+                    'transaction_type' => $d->transaction_type,
+                    'transaction_time' => $d->transaction_time,
+                    'note' => is_null($d->note) ? '' : $d->note
+                ];
+                $recordList[] = $record;
+            }
+
+            $res['result'] = true;
+            $res['data'] = [
+                'record_list' => $recordList,
+                'total_record_count' => $data->total(),
+                'page' => 1
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**

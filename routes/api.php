@@ -18,6 +18,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/user/newuser', [User::class, 'NewUser']);
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
     Route::get('/user/userinfo', [User::class, 'UserInfo']);
+    Route::get('/user/payment-records', [User::class, 'PaymentRecord']);
     Route::post('/user/payment', [User::class, 'Payment']);
 });
 Route::post('/user/login', [User::class, 'Login']);
@@ -29,7 +30,3 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::post('/admin/new-machine', [Admin::class, 'NewMachine']);
 });
 Route::post('/admin/login', [Admin::class, 'Login']);
-
-//Route::get('/getuserlist', [User::class, 'getlist'])->middleware(AuthUser::api);
-
-//Route::get('/getuserlist', [User::class, 'getlist'])->middleware(AuthUser::class);
