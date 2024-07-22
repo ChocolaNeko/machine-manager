@@ -18,7 +18,7 @@ class AuthUser extends Middleware
     {
         // check auth param
         $authKey = $request->header("auth");
-        $validApiKey = "98934a45-430b-4077-adc2-a5b1764a1171";
+        $validApiKey = "";
 
         if ($validApiKey !== $authKey) {
             return response()->json(['error' => '未帶入 auth key'], 401);
